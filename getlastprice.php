@@ -10,18 +10,6 @@
  * 
  * This application allows the getting of average Verus market price from included exchanges and outputting to a file for remote access. Basic version.
  * ====================
- * <?php
-/**
- * Verus Price Api Data
- *
- * @category Cryptocurrency
- * @package  VerusPriceApi
- * @author   John Oliver Westbrook <johnwestbrook@pm.me>
- * @copyright Copyright (c) 2019, John Oliver Westbrook
- * @link     https://github.com/joliverwestbrook/VerusPriceApi
- * 
- * This application allows the getting of average Verus market price from included exchanges and outputting to a file for remote access. Basic version.
- * ====================
  * 
  * The MIT License (MIT)
  * 
@@ -47,6 +35,8 @@
  * 
  * ====================
  */
+$curl_requests = 0;
+
 $fiatexchange = "https://bitpay.com/api/rates";
 $exch_data = array(
     'digitalprice' => array(
