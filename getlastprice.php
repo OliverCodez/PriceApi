@@ -74,11 +74,11 @@ $exch_data = array(
 );
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $currency = $_GET[ 'currency' ];
+    $currency = strtoupper($_GET[ 'currency' ]);
     $exch_name = $_GET[ 'name' ];
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $currency = $_POST[ 'currency' ];
+    $currency = strtoupper($_POST[ 'currency' ]);
     $exch_name = $_GET[ 'name' ];
 }
 
