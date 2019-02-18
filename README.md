@@ -34,7 +34,7 @@ THE SOFTWARE.
 1. Clone this repo into the folder where you'll run your api from
 2. Rename getlastprice.php to something obscure
 3. Create a cron job to run the script at the interval you desire. For example: `*/1 * * * * /usr/bin/php /var/www/yourdomain.com/apifolder/getlastprice.php` will run every 1 minute.
-4. Within the interval you set in cron, the first run will generate the price data as the index.php file within `lastprice` folder within your script folder.
+4. Within the interval you set in cron, the first run will generate the price data as `rawpricedata.php`within your script folder.
 
 ### Use
 
