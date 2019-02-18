@@ -4,7 +4,7 @@
  *
  * @category Cryptocurrency
  * @package  VerusPriceApi
- * @author   John Oliver Westbrook <johnwestbrook@pm.me>
+ * @author   J Oliver Westbrook <johnwestbrook@pm.me>
  * @copyright Copyright (c) 2019, John Oliver Westbrook
  * @link     https://github.com/joliverwestbrook/VerusPriceApi
  * 
