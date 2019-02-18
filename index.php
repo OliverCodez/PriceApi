@@ -40,10 +40,10 @@ $rawpricedata = json_decode( file_get_contents( dirname(__FILE__) . '/rawpriceda
 $btcprice = $rawpricedata['data']['avg_btc'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $currency = $_GET[ 'currency' ];
+    $currency = strtoupper($_GET[ 'currency' ]);
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $currency = $_POST[ 'currency' ];
+    $currency = strtoupper($_POST[ 'currency' ]);
 }
 if ( ! isset( $currency ) | empty( $currency ) ) {
     $currency = 'USD';
