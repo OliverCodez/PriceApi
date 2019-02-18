@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currency = $_POST[ 'currency' ];
 }
-if ( ! isset( $currency ) ) {
+if ( ! isset( $currency ) | empty( $currency ) ) {
     $currency = 'USD';
 }
 echo fiatPrice( $currency, $fiatexchange, $btcprice );
