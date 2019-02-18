@@ -36,7 +36,7 @@
  * ====================
  */
 $fiatexchange = "https://bitpay.com/api/rates";
-$rawpricedata = file_get_contents( dirname(__FILE__) . '/lastprice/rawpricedata.php', json_decode( $price_results, true ) );
+$rawpricedata = json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata.php' ), true);
 $btcprice = $rawpricedata['data']['avg_btc'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
