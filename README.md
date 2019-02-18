@@ -1,7 +1,7 @@
 # VerusPriceApi
 Simple script for getting Verus average last price across all exchanges
 
-This can be hosted or used via https://veruspay.io/api/lastprice/
+This can be hosted or used via https://veruspay.io/api/
 
 The purpose of this api script is to provide an average last price for Verus Coin (VRSC) from all exchanges and on a slight delay so data is able to be accessed immediately despite delays and slow connections from various exchanges.  My Api at VerusPay.io above is on a 1 min update interval and the default fiat I've set is USD.
 
@@ -16,8 +16,8 @@ The purpose of this api script is to provide an average last price for Verus Coi
 
 ### Use
 
-1. For simple VRSC-Fiat price data, request the `lastprice` folder with the currency of your choice as `?currency=` for example: `https://veruspay.io/api/lastprice/?currency=GBP` to return simply the fiat price based on latest average exchange data and bitpay BTC pricing.
-2. For access to the latest raw price data, for example to access via a curl request, do so from the `lastprice` folder and `rawpricedata.php` which returns the json formatted avg price data, includes date stamp of when the price was retrieved. 
+1. For simple VRSC-Fiat price data, simply request the currency of your choice (must be supported by BitPay) with`?currency=` - for example: `https://veruspay.io/api/?currency=GBP` to return simply the fiat price based on latest average exchange data and bitpay BTC pricing.
+2. For access to the latest raw price data, for example to access via a curl request, call `rawpricedata.php` which returns the json formatted avg price data, includes date stamp of when the price was retrieved. 
 
 ### Features
 
