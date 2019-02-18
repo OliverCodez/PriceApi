@@ -115,7 +115,7 @@ $price_results = array(
         'sel_fiat' => $sel_fiat,
     ),
 );
-file_put_contents( dirname(__FILE__) . '/lastprice/rawpricedata.php', json_encode( $price_results, true ) );
+file_put_contents( dirname(__FILE__) . '/rawpricedata.php', json_encode( $price_results, true ) );
 
 function btcPrice( $exchange ) {
     $results = json_decode( curlRequest( $exchange['url'], curl_init(), null ), true );
