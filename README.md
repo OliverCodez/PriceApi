@@ -62,7 +62,7 @@ This is an early release, more features are being developed.
 
 ### 2019.02.26 - version 0.1.1
 
-- 24-hour volume-weighted price data (no volume has no impact on price, all others have percentage weight on average price based on percentage of volume) *Thanks to @miketout for this suggestion!
+- 24-hour volume-weighted price data (no volume has no impact on price, all others have percentage weight on average price based on percentage of volume) *Thanks to https://github.com/miketout for this suggestion!
 - Fix bug with USD default price data
 - Add support for future features with more price and volume data
 - Simplified CURL calls and functions
