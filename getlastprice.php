@@ -6,9 +6,11 @@
  * @package  VerusPriceApi
  * @author   J Oliver Westbrook <johnwestbrook@pm.me>
  * @copyright Copyright (c) 2019, John Oliver Westbrook
+ * @version 0.1.1
  * @link     https://github.com/joliverwestbrook/VerusPriceApi
  * 
- * This application allows the getting of average Verus market price from included exchanges and outputting to a file for remote access. Basic version.
+ * This application allows the getting of average, volume weighted Verus market price from included exchanges and outputting to a file for remote access. 
+ * Basic version includes average price data, exchange specific price data, and fiat prices
  * ====================
  * 
  * The MIT License (MIT)
@@ -35,15 +37,22 @@
  * 
  * ====================
  */
-$curl_requests = 0;
+global $connection_status;
 
+$curl_requests = 0;
+$connection_status = 1;
+
+// API to use for fiat price conversions
 $fiatexchange = "https://bitpay.com/api/rates";
+
+// Build array of exchanges to include
 $exch_data = array(
     'digitalprice' => array(
         'url' => 'https://digitalprice.io/api/markets?baseMarket=BTC',
         'top' => 'data',
         'base' => null,
         'price' => 'priceLast',
+        'volume' => 'volumeBase', // BTC volume
         'code' => 'url',
         'market' => 'vrsc-btc',
     ),
@@ -52,6 +61,7 @@ $exch_data = array(
         'top' => 'data',
         'base' => 'ticker',
         'price' => 'last',
+        'volume' => 'obv', // BTC volume
         'code' => 'symbol',
         'market' => 'VRSC_BTC',
     ),
@@ -60,6 +70,7 @@ $exch_data = array(
         'top' => null,
         'base' => null,
         'price' => 'last',
+        'volume' => 'vol_market', // BTC volume
         'code' => 'market_name',
         'market' => 'VRSC_BTC',
     ),
@@ -68,11 +79,13 @@ $exch_data = array(
         'top' => null,
         'base' => null,
         'price' => 'last',
+        'volume' => 'volume', // BTC volume
         'code' => 'id',
         'market' => 'VRSC_BTC',
     )
 );
 
+// Check for get/post calls
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currency = strtoupper($_GET[ 'currency' ]);
     $exch_name = $_GET[ 'name' ];
@@ -82,19 +95,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $exch_name = $_GET[ 'name' ];
 }
 
-if ( ! isset( $currency ) ) {
+// If no currency set, default to USD
+if ( ! isset( $currency ) | empty( $currency ) ) {
     $currency = 'USD';
 }
 
-// Build array of prices
-$exch_prices = array();
-foreach ( $exch_data as $exch_item ) {
-    $exch_prices[] = btcPrice( $exch_item );
+// Build array of exchange data
+$exch_results = array();
+foreach ( $exch_data as $exch_key => $exch_item ) {
+    $exch_results[$exch_key] = btcData( $exch_item );
 }
-$avg_btc = number_format( array_sum($exch_prices) / count($exch_prices), 8 );
+
+// Check for no data / broken connection
+if ( $connection_status === 0 ) {
+    die;
+}
+
+// Setup price results array data
+$avg_btc = getAvg( $exch_results );
 $avg_fiat = fiatPrice( $currency, $fiatexchange, $avg_btc );
-$sel_btc = btcPrice( $exch_data[$exch_name] );
-$sel_fiat = fiatPrice( $currency, $fiatexchange, $sel_btc );
+
+// If get/post name set include specific exchange data
+if ( isset( $exch_name ) ) {
+    $sel_btc = $exch_results[$exch_name]['price'];
+    $sel_vol = $exch_results[$exch_name]['volume'];
+    $sel_fiat = fiatPrice( $currency, $fiatexchange, $sel_btc );
+}
+
+// Build price results array for output
 $price_results = array(
     'date' => time(),
     'data' => array(
@@ -102,13 +130,19 @@ $price_results = array(
         'avg_fiat' => $avg_fiat,
         'sel_name' => $exch_name,
         'sel_btc' => $sel_btc,
+        'sel_vol' => $sel_vol,
         'sel_fiat' => $sel_fiat,
     ),
 );
+
+// Output results to file in json format
 file_put_contents( dirname(__FILE__) . '/rawpricedata.php', json_encode( $price_results, true ) );
 
-function btcPrice( $exchange ) {
+// Function for getting data from exchange APIs
+function btcData( $exchange ) {
+    global $connection_status;
     $results = json_decode( curlRequest( $exchange['url'], curl_init(), null ), true );
+    // Check for json structure of input for construct
     if ( $exchange['top'] != null ) {
         if ( $exchange['base'] != null ) {
             $data = $results[ $exchange['top'] ][ $exchange['base'] ];
@@ -120,9 +154,43 @@ function btcPrice( $exchange ) {
     else {
         $data = $results;
     }
-    return array_column( $data, $exchange['price'], $exchange['code'] )[ $exchange['market'] ];
+    if ( !isset( (array_column($data, $exchange['price'], $exchange['code'] )[ $exchange['market'] ]) ) ) {
+        $connection_status = 0;
+        return;
+    }
+    else {
+        // Return last price and 24 hour base volume
+        return array(
+            'price' => (array_column($data, $exchange['price'], $exchange['code'] )[ $exchange['market'] ]),
+            'volume' => (array_column($data, $exchange['volume'], $exchange['code'] )[ $exchange['market'] ]),
+        );
+    }
 }
 
+// Function for processing exchange data and getting average base price, weighted by volume
+function getAvg( $exch_results ) {
+    // Get total volume
+    $sum_volume = 0;
+    foreach ($exch_results as $item) {
+        $sum_volume += $item['volume'];
+    }
+    // Get each exchange volume weight
+    $weighted_prices = array();
+    foreach ( $exch_results as $key => $item ) {
+        $weighted_prices[$key] = array(
+            'weight' => number_format( number_format( ( $item['volume'] / $sum_volume ), 3 ) * 100, 1 ),
+            'weight_as_price' => number_format( ( $item['price'] * floor( round( number_format( ( $item['volume'] / $sum_volume ), 3 ) * 1000 ) ) ), 8 ),
+        );
+    }
+    // Get total price point for average
+    $sum_price = 0;
+    foreach ($weighted_prices as $item) {
+        $sum_price += $item['weight_as_price'];
+    }
+    return number_format(($sum_price) / 1000, 8);
+}
+
+// Function to return Fiat price of given input data
 function fiatPrice( $currency, $fiatexchange, $btcprice ) {
     $fiatrates = json_decode( curlRequest( $fiatexchange, curl_init(), null ), true );
     $fiatrates = array_column( $fiatrates, 'rate', 'code' );
@@ -138,6 +206,7 @@ function fiatPrice( $currency, $fiatexchange, $btcprice ) {
     return $fiatExchRate;
 }
 
+// Curl function
 function curlRequest( $url, $curl_handle, $fail_on_error = false ) {
     global $curl_requests;
 
