@@ -40,6 +40,8 @@ $fiatexchange = "https://bitpay.com/api/rates";
 $rawpricedata = json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata.php' ), true);
 $btcprice = $rawpricedata['data']['avg_btc'];
 
+// header("Access-Control-Allow-Origin: *"); // Uncomment to allow API POST and GET access from Ajax commands on other sites
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currency = strtoupper($_GET[ 'currency' ]);
 }
