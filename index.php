@@ -37,7 +37,6 @@
  * ====================
  */
 $fiatexchange = "https://bitpay.com/api/rates";
-$rawpricedata = ;
 $btcprice = array(
 	'vrsc' => json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata_vrsc.php' ), true)['data']['avg_btc'],
 	'arrr' => json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata_arrr.php' ), true)['data']['avg_btc'],
@@ -59,9 +58,10 @@ if ( ! isset( $currency ) | empty( $currency ) ) {
 if ( ! isset( $ticker ) | empty( $ticker ) ) {
     $ticker = 'vrsc';
 }
+
 echo fiatPrice( $currency, $fiatexchange, $btcprice[$ticker] );
 
-function fiatPrice( $currency, $fiatexchange, $btcprice[$ticker] ) {
+function fiatPrice( $currency, $fiatexchange, $btcprice ) {
     $fiatrates = json_decode( curlRequest( $fiatexchange, curl_init(), null ), true );
     $fiatrates = array_column( $fiatrates, 'rate', 'code' );
     $rate = $fiatrates[$currency];

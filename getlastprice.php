@@ -56,17 +56,24 @@ $exch_data = array(
         'code' => 'url',
         'market' => '-btc',
 	'mktcase' => 'lower',
+	'support' => array(
+			'vrsc' => 'vrsc',
+			'arrr' => 'arrr',
+		     ),
     ),
-    'aacoin' => array(
-        'url' => 'https://api.aacoin.com/market/tickers',
-        'top' => 'data',
-        'base' => 'ticker',
-        'price' => 'last',
-        'volume' => 'obv', // BTC volume
-        'code' => 'symbol',
-        'market' => '_BTC',
-	'mktcase' => 'upper',
-    ),
+//  'aacoin' => array(
+//      'url' => 'https://api.aacoin.com/market/tickers',
+//      'top' => 'data',
+//      'base' => 'ticker',
+//      'price' => 'last',
+//      'volume' => 'obv', // BTC volume
+//      'code' => 'symbol',
+//      'market' => '_BTC',
+//	'mktcase' => 'upper',
+//	'support' => array(
+//			'vrsc' => 'vrsc',
+//		     ),
+//    ),
     'stex' => array(
         'url' => 'https://app.stex.com/api2/ticker',
         'top' => null,
@@ -76,6 +83,9 @@ $exch_data = array(
         'code' => 'market_name',
         'market' => '_BTC',
 	'mktcase' => 'upper',
+	'support' => array(
+			'vrsc' => 'vrsc',
+		     ),
     ),
     'cryptobridge' => array(
         'url' => 'https://api.crypto-bridge.org/api/v1/ticker',
@@ -86,6 +96,10 @@ $exch_data = array(
         'code' => 'id',
         'market' => '_BTC',
 	'mktcase' => 'upper',
+	'support' => array(
+			'vrsc' => 'vrsc',
+			'arrr' => 'arrr',
+		     ),
     )
 );
 
@@ -112,11 +126,11 @@ if ( ! isset( $ticker ) | empty( $ticker ) ) {
 	);
 }
 foreach ( $ticker as $item ) {
-	echo "<br>item: <br>" . $item;
-	//generatePriceData( $item, $currency, $exch_name, $fiatexchange, $exch_data );
+	generatePriceData( $item, $currency, $exch_name, $fiatexchange, $exch_data );
 }
 // Function to output price data to rawpricedata_TICKER.php file
 function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch_data ) {
+	global $connection_status;
 	// Build array of exchange data
 	$exch_results = array();
 	foreach ( $exch_data as $exch_key => $exch_item ) {
@@ -126,7 +140,10 @@ function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch
 	    if ( $exch_item['mktcase'] == 'upper' ) {
 		$ticker = strtoupper( $ticker );
 	    }
-	    $exch_results[$exch_key] = btcData( $ticker, $exch_item );
+	    $is_supported = array_search( strtolower( $ticker ), $exch_item['support'] );
+	    if ( $is_supported ) {
+		$exch_results[$exch_key] = btcData( $ticker, $exch_item );
+	    }
 	}
 
 	// Check for no data / broken connection
@@ -159,6 +176,7 @@ function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch
 	);
 
 	// Output results to file in json format
+	$ticker = strtolower( $ticker );
 	file_put_contents( dirname(__FILE__) . '/rawpricedata_' . $ticker . '.php', json_encode( $price_results, true ) );
 }
 
