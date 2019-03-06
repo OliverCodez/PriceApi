@@ -37,23 +37,31 @@
  * ====================
  */
 $fiatexchange = "https://bitpay.com/api/rates";
-$rawpricedata = json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata.php' ), true);
-$btcprice = $rawpricedata['data']['avg_btc'];
+$rawpricedata = ;
+$btcprice = array(
+	'vrsc' => json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata_vrsc.php' ), true)['data']['avg_btc'],
+	'arrr' => json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata_arrr.php' ), true)['data']['avg_btc'],
+);
 
 // header("Access-Control-Allow-Origin: *"); // Uncomment to allow API POST and GET access from Ajax commands on other sites
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currency = strtoupper($_GET[ 'currency' ]);
+    $ticker = strtolower($_GET[ 'ticker' ]);
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currency = strtoupper($_POST[ 'currency' ]);
+    $ticker = strtolower($_POST[ 'ticker' ]);
 }
 if ( ! isset( $currency ) | empty( $currency ) ) {
     $currency = 'USD';
 }
-echo fiatPrice( $currency, $fiatexchange, $btcprice );
+if ( ! isset( $ticker ) | empty( $ticker ) ) {
+    $ticker = 'vrsc';
+}
+echo fiatPrice( $currency, $fiatexchange, $btcprice[$ticker] );
 
-function fiatPrice( $currency, $fiatexchange, $btcprice ) {
+function fiatPrice( $currency, $fiatexchange, $btcprice[$ticker] ) {
     $fiatrates = json_decode( curlRequest( $fiatexchange, curl_init(), null ), true );
     $fiatrates = array_column( $fiatrates, 'rate', 'code' );
     $rate = $fiatrates[$currency];

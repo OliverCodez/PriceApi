@@ -54,7 +54,8 @@ $exch_data = array(
         'price' => 'priceLast',
         'volume' => 'volumeBase', // BTC volume
         'code' => 'url',
-        'market' => 'vrsc-btc',
+        'market' => '-btc',
+	'mktcase' => 'lower',
     ),
     'aacoin' => array(
         'url' => 'https://api.aacoin.com/market/tickers',
@@ -63,7 +64,8 @@ $exch_data = array(
         'price' => 'last',
         'volume' => 'obv', // BTC volume
         'code' => 'symbol',
-        'market' => 'VRSC_BTC',
+        'market' => '_BTC',
+	'mktcase' => 'upper',
     ),
     'stex' => array(
         'url' => 'https://app.stex.com/api2/ticker',
@@ -72,7 +74,8 @@ $exch_data = array(
         'price' => 'last',
         'volume' => 'vol_market', // BTC volume
         'code' => 'market_name',
-        'market' => 'VRSC_BTC',
+        'market' => '_BTC',
+	'mktcase' => 'upper',
     ),
     'cryptobridge' => array(
         'url' => 'https://api.crypto-bridge.org/api/v1/ticker',
@@ -81,7 +84,8 @@ $exch_data = array(
         'price' => 'last',
         'volume' => 'volume', // BTC volume
         'code' => 'id',
-        'market' => 'VRSC_BTC',
+        'market' => '_BTC',
+	'mktcase' => 'upper',
     )
 );
 
@@ -89,57 +93,76 @@ $exch_data = array(
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currency = strtoupper($_GET[ 'currency' ]);
     $exch_name = $_GET[ 'name' ];
+    $ticker = strtolower( $_GET['ticker'] );
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currency = strtoupper($_POST[ 'currency' ]);
-    $exch_name = $_GET[ 'name' ];
+    $exch_name = $_POST[ 'name' ];
+    $ticker = strtolower( $_POST['ticker'] );
 }
 
-// If no currency set, default to USD
+// If no currency set, default to USD; if no ticker, set to VRSC
 if ( ! isset( $currency ) | empty( $currency ) ) {
     $currency = 'USD';
 }
-
-// Build array of exchange data
-$exch_results = array();
-foreach ( $exch_data as $exch_key => $exch_item ) {
-    $exch_results[$exch_key] = btcData( $exch_item );
+if ( ! isset( $ticker ) | empty( $ticker ) ) {
+    $ticker = array(
+	'vrsc',
+	'arrr'
+	);
 }
-
-// Check for no data / broken connection
-if ( $connection_status === 0 ) {
-    die;
+foreach ( $ticker as $item ) {
+	generatePriceData( $item, $currency, $exch_name, $fiatexchange, $exch_data );
 }
+// Function to output price data to rawpricedata_TICKER.php file
+function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch_data ) {
+	// Build array of exchange data
+	$exch_results = array();
+	foreach ( $exch_data as $exch_key => $exch_item ) {
+	    if ( $exch_item['mktcase'] == 'lower' ) {
+		$ticker = strtolower( $ticker );
+	    }
+	    if ( $exch_item['mktcase'] == 'upper' ) {
+		$ticker = strtoupper( $ticker );
+	    }
+	    $exch_results[$exch_key] = btcData( $ticker, $exch_item );
+	}
 
-// Setup price results array data
-$avg_btc = getAvg( $exch_results );
-$avg_fiat = fiatPrice( $currency, $fiatexchange, $avg_btc );
+	// Check for no data / broken connection
+	if ( $connection_status === 0 ) {
+	    die;
+	}
 
-// If get/post name set include specific exchange data
-if ( isset( $exch_name ) ) {
-    $sel_btc = $exch_results[$exch_name]['price'];
-    $sel_vol = $exch_results[$exch_name]['volume'];
-    $sel_fiat = fiatPrice( $currency, $fiatexchange, $sel_btc );
+	// Setup price results array data
+	$avg_btc = getAvg( $exch_results );
+	$avg_fiat = fiatPrice( $currency, $fiatexchange, $avg_btc );
+
+	// If get/post name set include specific exchange data
+	if ( isset( $exch_name ) ) {
+	    $sel_btc = $exch_results[$exch_name]['price'];
+	    $sel_vol = $exch_results[$exch_name]['volume'];
+	    $sel_fiat = fiatPrice( $currency, $fiatexchange, $sel_btc );
+	}
+
+	// Build price results array for output
+	$price_results = array(
+	    'date' => time(),
+	    'data' => array(
+	        'avg_btc' => $avg_btc,
+	        'avg_fiat' => $avg_fiat,
+	        'sel_name' => $exch_name,
+	        'sel_btc' => $sel_btc,
+	        'sel_vol' => $sel_vol,
+	        'sel_fiat' => $sel_fiat,
+	    ),
+	);
+
+	// Output results to file in json format
+	file_put_contents( dirname(__FILE__) . '/rawpricedata_' . $ticker . '.php', json_encode( $price_results, true ) );
 }
-
-// Build price results array for output
-$price_results = array(
-    'date' => time(),
-    'data' => array(
-        'avg_btc' => $avg_btc,
-        'avg_fiat' => $avg_fiat,
-        'sel_name' => $exch_name,
-        'sel_btc' => $sel_btc,
-        'sel_vol' => $sel_vol,
-        'sel_fiat' => $sel_fiat,
-    ),
-);
-
-// Output results to file in json format
-file_put_contents( dirname(__FILE__) . '/rawpricedata.php', json_encode( $price_results, true ) );
 
 // Function for getting data from exchange APIs
-function btcData( $exchange ) {
+function btcData( $ticker, $exchange ) {
     global $connection_status;
     $results = json_decode( curlRequest( $exchange['url'], curl_init(), null ), true );
     // Check for json structure of input for construct
@@ -154,15 +177,15 @@ function btcData( $exchange ) {
     else {
         $data = $results;
     }
-    if ( !isset( (array_column($data, $exchange['price'], $exchange['code'] )[ $exchange['market'] ]) ) ) {
+    if ( !isset( (array_column($data, $exchange['price'], $exchange['code'] )[ $ticker . $exchange['market'] ]) ) ) {
         $connection_status = 0;
         return;
     }
     else {
         // Return last price and 24 hour base volume
         return array(
-            'price' => (array_column($data, $exchange['price'], $exchange['code'] )[ $exchange['market'] ]),
-            'volume' => (array_column($data, $exchange['volume'], $exchange['code'] )[ $exchange['market'] ]),
+            'price' => (array_column($data, $exchange['price'], $exchange['code'] )[ $ticker . $exchange['market'] ]),
+            'volume' => (array_column($data, $exchange['volume'], $exchange['code'] )[ $ticker . $exchange['market'] ]),
         );
     }
 }
