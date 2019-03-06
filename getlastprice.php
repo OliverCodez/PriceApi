@@ -112,7 +112,8 @@ if ( ! isset( $ticker ) | empty( $ticker ) ) {
 	);
 }
 foreach ( $ticker as $item ) {
-	generatePriceData( $item, $currency, $exch_name, $fiatexchange, $exch_data );
+	echo "<br>item: <br>" . $item;
+	//generatePriceData( $item, $currency, $exch_name, $fiatexchange, $exch_data );
 }
 // Function to output price data to rawpricedata_TICKER.php file
 function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch_data ) {
