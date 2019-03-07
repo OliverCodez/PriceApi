@@ -67,6 +67,13 @@ $connection_status = 1;
 // API to use for fiat price conversions
 $fiatexchange = "https://bitpay.com/api/rates";
 
+// Setup supported coins and default fiat
+$currency = 'USD';
+$ticker = array(
+	'vrsc',
+	'arrr'
+);
+
 // Build array of exchanges to include
 $exch_data = array(
     'digitalprice' => array(
@@ -112,26 +119,7 @@ $exch_data = array(
     )
 );
 
-// Check for get/post calls
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $currency = strtoupper($_GET[ 'currency' ]);
-    $ticker = strtolower( $_GET['ticker'] );
-}
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $currency = strtoupper($_POST[ 'currency' ]);
-    $ticker = strtolower( $_POST['ticker'] );
-}
-
-// If no currency set, default to USD; if no ticker, set to VRSC
-if ( ! isset( $currency ) | empty( $currency ) ) {
-    $currency = 'USD';
-}
-if ( ! isset( $ticker ) | empty( $ticker ) ) {
-    $ticker = array(
-	'vrsc',
-	'arrr'
-	);
-}
+// Generate the price data for all included coins
 foreach ( $ticker as $item ) {
 	generatePriceData( $item, $currency, $fiatexchange, $exch_data );
 }
