@@ -1,10 +1,8 @@
-## VerusPriceApi
+# VerusPriceApi - Latest Price Data for VRSC and ARRR
 
  - Contributors: J Oliver Westbrook
- - Tags: verus, vrsc, api, price, fiat, btc, exchange, exchanges
- - Stable Tag: 0.1.1
  - Copyright: Copyright (c) 2019, John Oliver Westbrook 
- - Version: 0.1.1
+ - Version: 0.1.2
 
 ## The MIT License (MIT)
  
@@ -35,7 +33,7 @@ This can be hosted on your own site, or accessed for free via https://veruspay.i
 
 The purpose of this api script is to provide an average last price for Verus Coin (VRSC) from all exchanges with 24 hour base (btc) weighting and on a slight delay so data is able to be accessed immediately despite delays and slow connections from various exchanges.  My Api at VerusPay.io above is on a 1 min update interval and the default fiat I've set is USD.
 
-### Installation
+## Installation
 
 > Best practice: rename getlastprice.php to an obscure name.
 
@@ -44,21 +42,45 @@ The purpose of this api script is to provide an average last price for Verus Coi
 3. Create a cron job to run the script at the interval you desire. For example: `*/1 * * * * /usr/bin/php /var/www/yourdomain.com/apifolder/getlastprice.php` will run every 1 minute.
 4. Within the interval you set in cron, the first run will generate the price data as the index.php file within `lastprice` folder within your script folder.
 
-### Use
+## Use
 
-1. For simple VRSC-Fiat price data, simply request the currency of your choice (must be supported by BitPay) with`?currency=` - for example: `https://veruspay.io/api/?currency=GBP` to return simply the fiat price based on latest average exchange data and bitpay BTC pricing.
-2. For access to the latest raw price data, for example to access via a curl request, call `rawpricedata.php` which returns the json formatted avg price data, includes date stamp of when the price was retrieved. 
+For simple VRSC-Fiat price data, simply request the fiat currency of your choice (must be supported by BitPay) with`?currency=` - for example: `https://veruspay.io/api/?currency=GBP` to return simply the fiat price based on latest average exchange data and bitpay BTC pricing.  The currency of `BTC` is also supported.
 
-### Features
+For access to the latest raw price data, for example to access via a curl request, call `rawpricedata.php` which returns the json formatted avg price data, includes date stamp of when the price was retrieved, along with individual exchange price and volume data.
 
-This is an early release, more features are being developed. 
+### Options (values are case insensitive): 
 
-- Exchange support for DigitalPrice, AACoin, STEX, and Crypto-Bridge. 
-- Fiat prices calculated from bitpay.  
-- Script can accept GET or POST for specific exchange last price and for currency.
-- Date stamp recorded on each new price output.
+* currency - BTC or Fiat code like USD or CAD
+* ticker - ARRR or VRSC are supported
+* data - volume or price - volume only relevant if exchange is defined
+* exch - name of supported exchange, e.g. digitalprice - If no exchange, price is average of all supported for that coin.
 
-### Changelog
+If no options are set, the default is average price in USD fiat of VRSC.
+
+### Examples:
+
+https://veruspay.io/api/ - This get's the current price of VRSC in USD, weighted against 24hr volume across all exchanges. This is the default return.
+
+https://veruspay.io/api/?exch=digitalprice&currency=cad - This will get the current price on digital price for VRSC and display in CAD fiat
+
+https://veruspay.io/api/?currency=btc - This will get the average price of VRSC in BTC, weighted by 24 hr volume across both exchanges
+
+https://veruspay.io/api/?currency=cad - This gets the current average price of VRSC in CAD, weighted by 24 hr volume across both exchanges
+
+https://veruspay.io/api/?exch=cryptobridge&data=volume - This will get the 24 volume of VRSC on CryptoBridge in the default currency of USD
+
+https://veruspay.io/api/?exch=cryptobridge&data=volume&currency=btc - This does the same but with BTC as the currency result
+
+https://veruspay.io/api/?currency=cad&ticker=arrr - Gets the average price of ARRR, now added to the api!
+
+## Changelog
+
+### 2019.03.07 - version 0.1.2
+
+- Support for ARRR Pirate added
+- Inclusion of individual exchange data in rawpricedata output
+- Options added for specific api calls
+- Improved connection timeout and error handling
 
 ### 2019.02.26 - version 0.1.1
 
@@ -70,3 +92,7 @@ This is an early release, more features are being developed.
 ### 2019.02.18 - version 0.1.0
 
 - Initial release with base features
+- Exchange support for DigitalPrice, AACoin, STEX, and Crypto-Bridge. 
+- Fiat prices calculated from bitpay.  
+- Script at index.php can accept GET or POST for specific exchange last price and for currency.
+- Date stamp recorded on each new price output.
