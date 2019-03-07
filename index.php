@@ -89,7 +89,7 @@ function fiatPrice( $currency, $fiatexchange, $btcprice ) {
         $rate = number_format( ( $btcprice * $rate ), 4 );
         $fiatExchRate = $rate;
     }
-    return $fiatExchRate;
+    return str_replace(',', '', $fiatExchRate);
 }
 
 function curlRequest( $url, $curl_handle, $fail_on_error = false ) {
