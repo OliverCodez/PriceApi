@@ -36,6 +36,26 @@
  * THE SOFTWARE.
  * 
  * ====================
+ * 
+ * Future Exchange Support:
+ * --
+ * 
+ * Past - Deprecated Exchange Support:
+ * 
+ *  'aacoin' => array(
+ *          'url' => 'https://api.aacoin.com/market/tickers',
+ *          'top' => 'data',
+ *          'base' => 'ticker',
+ *          'price' => 'last',
+ *          'volume' => 'obv', // BTC volume
+ *          'code' => 'symbol',
+ *          'market' => '_BTC',
+ *	        'mktcase' => 'upper',
+ *	        'support' => array(
+ *		        'vrsc' => 'vrsc',
+ *		        ),
+ *      ),
+ * 
  */
 global $connection_status;
 
@@ -60,19 +80,6 @@ $exch_data = array(
 			'vrsc' => 'vrsc',
 			'arrr' => 'arrr',
 		     ),
-    ),
-    'aacoin' => array(
-        'url' => 'https://api.aacoin.com/market/tickers',
-        'top' => 'data',
-        'base' => 'ticker',
-        'price' => 'last',
-        'volume' => 'obv', // BTC volume
-        'code' => 'symbol',
-        'market' => '_BTC',
-	    'mktcase' => 'upper',
-	    'support' => array(
-		    'vrsc' => 'vrsc',
-		    ),
     ),
     'stex' => array(
         'url' => 'https://app.stex.com/api2/ticker',
