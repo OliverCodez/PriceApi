@@ -61,19 +61,19 @@ $exch_data = array(
 			'arrr' => 'arrr',
 		     ),
     ),
-//  'aacoin' => array(
-//      'url' => 'https://api.aacoin.com/market/tickers',
-//      'top' => 'data',
-//      'base' => 'ticker',
-//      'price' => 'last',
-//      'volume' => 'obv', // BTC volume
-//      'code' => 'symbol',
-//      'market' => '_BTC',
-//	'mktcase' => 'upper',
-//	'support' => array(
-//			'vrsc' => 'vrsc',
-//		     ),
-//    ),
+    'aacoin' => array(
+        'url' => 'https://api.aacoin.com/market/tickers',
+        'top' => 'data',
+        'base' => 'ticker',
+        'price' => 'last',
+        'volume' => 'obv', // BTC volume
+        'code' => 'symbol',
+        'market' => '_BTC',
+	    'mktcase' => 'upper',
+	    'support' => array(
+		    'vrsc' => 'vrsc',
+		    ),
+    ),
     'stex' => array(
         'url' => 'https://app.stex.com/api2/ticker',
         'top' => null,
@@ -126,6 +126,7 @@ if ( ! isset( $ticker ) | empty( $ticker ) ) {
 	);
 }
 foreach ( $ticker as $item ) {
+    echo "<br>Going<br>";
 	generatePriceData( $item, $currency, $exch_name, $fiatexchange, $exch_data );
 }
 // Function to output price data to rawpricedata_TICKER.php file
@@ -151,7 +152,9 @@ function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch
 	    die;
 	}
 
-	// Setup price results array data
+    // Setup price results array data
+    echo "<br>exchresults<br>";
+    print_r($exch_results);
 	$avg_btc = getAvg( $exch_results );
 	$avg_fiat = fiatPrice( $currency, $fiatexchange, $avg_btc );
 
@@ -165,7 +168,7 @@ function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch
 	// Build price results array for output
 	$price_results = array(
 	    'date' => time(),
-	    'data' => array(
+	    strtolower( $ticker ) => array(
 	        'avg_btc' => $avg_btc,
 	        'avg_fiat' => $avg_fiat,
 	        'sel_name' => $exch_name,
