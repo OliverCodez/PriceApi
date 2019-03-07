@@ -58,6 +58,8 @@
  * 
  */
 global $connection_status;
+global $master_results;
+$master_results = array();
 
 $curl_requests = 0;
 $connection_status = 1;
@@ -113,12 +115,10 @@ $exch_data = array(
 // Check for get/post calls
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currency = strtoupper($_GET[ 'currency' ]);
-    $exch_name = $_GET[ 'name' ];
     $ticker = strtolower( $_GET['ticker'] );
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currency = strtoupper($_POST[ 'currency' ]);
-    $exch_name = $_POST[ 'name' ];
     $ticker = strtolower( $_POST['ticker'] );
 }
 
@@ -133,65 +133,52 @@ if ( ! isset( $ticker ) | empty( $ticker ) ) {
 	);
 }
 foreach ( $ticker as $item ) {
-    echo "<br>Going<br>";
-	generatePriceData( $item, $currency, $exch_name, $fiatexchange, $exch_data );
+	generatePriceData( $item, $currency, $fiatexchange, $exch_data );
 }
-// Function to output price data to rawpricedata_TICKER.php file
-function generatePriceData( $ticker, $currency, $exch_name, $fiatexchange, $exch_data ) {
-	global $connection_status;
+// Function to output price data to rawpricedata.php file
+function generatePriceData( $ticker, $currency, $fiatexchange, $exch_data ) {
+    global $connection_status;
+    global $master_results;
+
 	// Build array of exchange data
 	$exch_results = array();
 	foreach ( $exch_data as $exch_key => $exch_item ) {
 	    if ( $exch_item['mktcase'] == 'lower' ) {
-		$ticker = strtolower( $ticker );
+		    $ticker = strtolower( $ticker );
 	    }
 	    if ( $exch_item['mktcase'] == 'upper' ) {
-		$ticker = strtoupper( $ticker );
+		    $ticker = strtoupper( $ticker );
 	    }
 	    $is_supported = array_search( strtolower( $ticker ), $exch_item['support'] );
 	    if ( $is_supported ) {
-		$exch_results[$exch_key] = btcData( $ticker, $exch_item );
+            $exch_results[$exch_key] = btcData( $ticker, $exch_item, $exch_key );
 	    }
 	}
 
-	// Check for no data / broken connection
-	if ( $connection_status === 0 ) {
-	    die;
-	}
-
     // Setup price results array data
-    echo "<br>exchresults<br>";
-    print_r($exch_results);
 	$avg_btc = getAvg( $exch_results );
 	$avg_fiat = fiatPrice( $currency, $fiatexchange, $avg_btc );
 
-	// If get/post name set include specific exchange data
-	if ( isset( $exch_name ) ) {
-	    $sel_btc = $exch_results[$exch_name]['price'];
-	    $sel_vol = $exch_results[$exch_name]['volume'];
-	    $sel_fiat = fiatPrice( $currency, $fiatexchange, $sel_btc );
-	}
-
 	// Build price results array for output
 	$price_results = array(
-	    'date' => time(),
-	    strtolower( $ticker ) => array(
-	        'avg_btc' => $avg_btc,
-	        'avg_fiat' => $avg_fiat,
-	        'sel_name' => $exch_name,
-	        'sel_btc' => $sel_btc,
-	        'sel_vol' => $sel_vol,
-	        'sel_fiat' => $sel_fiat,
-	    ),
+        'avg_data' => array(
+            'date' => time(),
+            'avg_btc' => $avg_btc,
+            'avg_fiat' => $avg_fiat,
+        ),
+        'exch_data' => $exch_results,
 	);
 
 	// Output results to file in json format
-	$ticker = strtolower( $ticker );
-	file_put_contents( dirname(__FILE__) . '/rawpricedata_' . $ticker . '.php', json_encode( $price_results, true ) );
+    $ticker = strtolower( $ticker );
+    $master_results[$ticker] = $price_results;
+	
 }
+// Write data to file
+file_put_contents( dirname(__FILE__) . '/rawpricedata.php', json_encode( $master_results, true ) );
 
 // Function for getting data from exchange APIs
-function btcData( $ticker, $exchange ) {
+function btcData( $ticker, $exchange, $exch_name ) {
     global $connection_status;
     $results = json_decode( curlRequest( $exchange['url'], curl_init(), null ), true );
     // Check for json structure of input for construct
@@ -207,12 +194,19 @@ function btcData( $ticker, $exchange ) {
         $data = $results;
     }
     if ( !isset( (array_column($data, $exchange['price'], $exchange['code'] )[ $ticker . $exchange['market'] ]) ) ) {
+        // Use previous data if no connection, set variable for later use
         $connection_status = 0;
-        return;
+        $previous_data = json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata.php' ), true)[strtolower( $ticker )];
+        return array(
+            'date' => $previous_data['exch_data'][$exch_name]['date'],
+            'price' => $previous_data['exch_data'][$exch_name]['price'],
+            'volume' => $previous_data['exch_data'][$exch_name]['volume'],
+        );
     }
     else {
         // Return last price and 24 hour base volume
         return array(
+            'date' => time(),
             'price' => (array_column($data, $exchange['price'], $exchange['code'] )[ $ticker . $exchange['market'] ]),
             'volume' => (array_column($data, $exchange['volume'], $exchange['code'] )[ $ticker . $exchange['market'] ]),
         );
@@ -275,5 +269,4 @@ function curlRequest( $url, $curl_handle, $fail_on_error = false ) {
     $curl_requests++;
     return curl_exec( $curl_handle );
 }
-
 ?>

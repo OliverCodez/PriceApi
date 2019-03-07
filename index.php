@@ -37,30 +37,47 @@
  * ====================
  */
 $fiatexchange = "https://bitpay.com/api/rates";
-$btcprice = array(
-	'vrsc' => json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata_vrsc.php' ), true)['data']['avg_btc'],
-	'arrr' => json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata_arrr.php' ), true)['data']['avg_btc'],
-);
+$btcprice = json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata.php' ), true);
 
 // header("Access-Control-Allow-Origin: *"); // Uncomment to allow API POST and GET access from Ajax commands on other sites
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $currency = strtoupper($_GET[ 'currency' ]);
     $ticker = strtolower($_GET[ 'ticker' ]);
+    $exch_name = strtolower( $_GET['exch'] );
+    $data = strtolower( $_GET['data'] );
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currency = strtoupper($_POST[ 'currency' ]);
     $ticker = strtolower($_POST[ 'ticker' ]);
+    $exch_name = strtolower( $_POST['exch'] );
+    $data = strtolower( $_POST['data'] );
 }
-if ( ! isset( $currency ) | empty( $currency ) ) {
+if ( empty( $currency ) ) {
     $currency = 'USD';
 }
-if ( ! isset( $ticker ) | empty( $ticker ) ) {
+if ( empty( $ticker ) ) {
     $ticker = 'vrsc';
 }
-
-echo fiatPrice( $currency, $fiatexchange, $btcprice[$ticker] );
-
+if ( empty( $data ) ) {
+    $data = 'price';
+}
+if ( ! empty( $exch_name ) ) {
+    if ( $currency == 'BTC' ) {
+        echo $btcprice[$ticker]['exch_data'][$exch_name][$data];
+    }
+    else {
+        echo fiatPrice( $currency, $fiatexchange, $btcprice[$ticker]['exch_data'][$exch_name][$data] );
+    }
+}
+if ( empty( $exch_name ) ) {
+    if ( $currency == 'BTC' ) {
+        echo $btcprice[$ticker]['avg_data']['avg_btc'];
+    }
+    else {
+        echo fiatPrice( $currency, $fiatexchange, $btcprice[$ticker]['avg_data']['avg_btc'] );
+    }
+}
 function fiatPrice( $currency, $fiatexchange, $btcprice ) {
     $fiatrates = json_decode( curlRequest( $fiatexchange, curl_init(), null ), true );
     $fiatrates = array_column( $fiatrates, 'rate', 'code' );
@@ -69,9 +86,8 @@ function fiatPrice( $currency, $fiatexchange, $btcprice ) {
         $fiatExchRate = 0;
     }
     else {
-        $rate = number_format( ( $btcprice * $rate ), 8 );
-        $fiatrate = number_format( ( $rate ), 4 );
-        $fiatExchRate = $fiatrate;
+        $rate = number_format( ( $btcprice * $rate ), 4 );
+        $fiatExchRate = $rate;
     }
     return $fiatExchRate;
 }
@@ -92,6 +108,4 @@ function curlRequest( $url, $curl_handle, $fail_on_error = false ) {
     $curl_requests++;
     return curl_exec( $curl_handle );
 }
-
-
  ?>
