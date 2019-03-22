@@ -2,7 +2,7 @@
 
  - Contributors: J Oliver Westbrook
  - Copyright: Copyright (c) 2019, John Oliver Westbrook 
- - Version: 0.1.2
+ - Version: 0.1.4
 
 ## The MIT License (MIT)
  
@@ -51,7 +51,7 @@ For access to the latest raw price data, for example to access via a curl reques
 ### Options (values are case insensitive): 
 
 * currency - BTC or Fiat code like USD or CAD
-* ticker - ARRR or VRSC are supported
+* ticker - ARRR, VRSC, KMD, and ZEC are supported
 * data - volume or price - volume only relevant if exchange is defined
 * exch - name of supported exchange, e.g. digitalprice - If no exchange, price is average of all supported for that coin.
 
@@ -74,6 +74,13 @@ https://veruspay.io/api/?exch=cryptobridge&data=volume&currency=btc - This does 
 https://veruspay.io/api/?currency=cad&ticker=arrr - Gets the average price of ARRR, now added to the api!
 
 ## Changelog
+
+### 2019.03.22 - version 0.1.4
+
+- Support for KMD Komodo added
+- Support for ZEC Zcash added
+- Inclusion of binance, bittrex, and huobi
+- Change formatting of exch data array and related functions
 
 ### 2019.03.07 - version 0.1.2
 

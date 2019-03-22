@@ -6,7 +6,7 @@
  * @package  VerusPriceApi
  * @author   J Oliver Westbrook <johnwestbrook@pm.me>
  * @copyright Copyright (c) 2019, John Oliver Westbrook
- * @version 0.1.1
+ * @version 0.1.4
  * @link     https://github.com/joliverwestbrook/VerusPriceApi
  * 
  * This application allows the getting of average, volume weighted Verus market price from included exchanges and outputting to a file for remote access. 
@@ -71,7 +71,9 @@ $fiatexchange = "https://bitpay.com/api/rates";
 $currency = 'USD';
 $ticker = array(
 	'vrsc',
-	'arrr'
+    'arrr',
+    'kmd',
+    'zec',
 );
 
 // Build array of exchanges to include
@@ -83,12 +85,11 @@ $exch_data = array(
         'price' => 'priceLast',
         'volume' => 'volumeBase', // BTC volume
         'code' => 'url',
-        'market' => '-btc',
-	'mktcase' => 'lower',
-	'support' => array(
-			'vrsc' => 'vrsc',
-			'arrr' => 'arrr',
+        'market' => array(
+			'vrsc' => 'vrsc-btc',
+			'arrr' => 'arrr-btc',
 		     ),
+	    'mktcase' => 'lower',
     ),
     'stex' => array(
         'url' => 'https://app.stex.com/api2/ticker',
@@ -97,11 +98,10 @@ $exch_data = array(
         'price' => 'last',
         'volume' => 'vol_market', // BTC volume
         'code' => 'market_name',
-        'market' => '_BTC',
-	'mktcase' => 'upper',
-	'support' => array(
-			'vrsc' => 'vrsc',
+        'market' => array(
+			'vrsc' => 'VRSC_BTC',
 		     ),
+	    'mktcase' => 'upper',
     ),
     'cryptobridge' => array(
         'url' => 'https://api.crypto-bridge.org/api/v1/ticker',
@@ -110,13 +110,52 @@ $exch_data = array(
         'price' => 'last',
         'volume' => 'volume', // BTC volume
         'code' => 'id',
-        'market' => '_BTC',
-	'mktcase' => 'upper',
-	'support' => array(
-			'vrsc' => 'vrsc',
-			'arrr' => 'arrr',
+        'market' => array(
+			'vrsc' => 'VRSC_BTC',
+			'arrr' => 'ARRR_BTC',
 		     ),
-    )
+	    'mktcase' => 'upper',
+    ),
+    'binance' => array(
+        'url' => 'https://www.binance.com/api/v1/ticker/24hr',
+        'top' => null,
+        'base' => null,
+        'price' => 'lastPrice',
+        'volume' => 'volume', // BTC volume
+        'code' => 'symbol',
+        'market' => array(
+            'kmd' => 'KMDBTC',
+            'zec' => 'ZECBTC',
+            ),
+        'mktcase' => 'upper',
+    ),
+    'bittrex' => array(
+        'url' => 'https://bittrex.com/api/v1.1/public/getmarketsummaries',
+        'top' => 'result',
+        'base' => null,
+        'price' => 'Last',
+        'volume' => 'BaseVolume', // BTC volume
+        'code' => 'MarketName',
+        'market' => array(
+			'kmd' => 'BTC-KMD',
+			'zec' => 'BTC-ZEC',
+		     ),
+	    'mktcase' => 'upper',
+    ),
+    'huobi' => array(
+        'url' => 'https://api.huobi.pro/market/tickers',
+        'top' => 'data',
+        'base' => null,
+        'price' => 'close',
+        'volume' => 'vol', // BTC volume
+        'code' => 'symbol',
+        'market' => array(
+			'kmd' => 'kmdbtc',
+			'zec' => 'zecbtc',
+		     ),
+	    'mktcase' => 'lower',
+    ),
+
 );
 
 // Generate the price data for all included coins
@@ -136,8 +175,8 @@ function generatePriceData( $ticker, $currency, $fiatexchange, $exch_data ) {
 	    }
 	    if ( $exch_item['mktcase'] == 'upper' ) {
 		    $ticker = strtoupper( $ticker );
-	    }
-	    $is_supported = array_search( strtolower( $ticker ), $exch_item['support'] );
+        }
+        $is_supported = array_key_exists( strtolower( $ticker ), $exch_item['market'] );
 	    if ( $is_supported ) {
             $exch_results[$exch_key] = btcData( $ticker, $exch_item, $exch_key );
 	    }
@@ -181,7 +220,7 @@ function btcData( $ticker, $exchange, $exch_name ) {
     else {
         $data = $results;
     }
-    if ( !isset( (array_column($data, $exchange['price'], $exchange['code'] )[ $ticker . $exchange['market'] ]) ) ) {
+    if ( !isset( (array_column($data, $exchange['price'], $exchange['code'] )[ $exchange['market'][$ticker] ]) ) ) {
         // Use previous data if no connection, set variable for later use
         $connection_status = 0;
         $previous_data = json_decode( file_get_contents( dirname(__FILE__) . '/rawpricedata.php' ), true)[strtolower( $ticker )];
@@ -195,8 +234,8 @@ function btcData( $ticker, $exchange, $exch_name ) {
         // Return last price and 24 hour base volume
         return array(
             'date' => time(),
-            'price' => (array_column($data, $exchange['price'], $exchange['code'] )[ $ticker . $exchange['market'] ]),
-            'volume' => (array_column($data, $exchange['volume'], $exchange['code'] )[ $ticker . $exchange['market'] ]),
+            'price' => (array_column($data, $exchange['price'], $exchange['code'] )[ $exchange['market'][$ticker] ]),
+            'volume' => (array_column($data, $exchange['volume'], $exchange['code'] )[ $exchange['market'][$ticker] ]),
         );
     }
 }
