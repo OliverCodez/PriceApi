@@ -88,8 +88,7 @@ $exch_data = array(
         'market' => array(
 			'vrsc' => 'vrsc-btc',
 			'arrr' => 'arrr-btc',
-		     ),
-	    'mktcase' => 'lower',
+		),
     ),
     'stex' => array(
         'url' => 'https://app.stex.com/api2/ticker',
@@ -100,8 +99,7 @@ $exch_data = array(
         'code' => 'market_name',
         'market' => array(
 			'vrsc' => 'VRSC_BTC',
-		     ),
-	    'mktcase' => 'upper',
+		),
     ),
     'cryptobridge' => array(
         'url' => 'https://api.crypto-bridge.org/api/v1/ticker',
@@ -113,8 +111,7 @@ $exch_data = array(
         'market' => array(
 			'vrsc' => 'VRSC_BTC',
 			'arrr' => 'ARRR_BTC',
-		     ),
-	    'mktcase' => 'upper',
+		),
     ),
     'binance' => array(
         'url' => 'https://www.binance.com/api/v1/ticker/24hr',
@@ -126,8 +123,7 @@ $exch_data = array(
         'market' => array(
             'kmd' => 'KMDBTC',
             'zec' => 'ZECBTC',
-            ),
-        'mktcase' => 'upper',
+        ),
     ),
     'bittrex' => array(
         'url' => 'https://bittrex.com/api/v1.1/public/getmarketsummaries',
@@ -139,8 +135,7 @@ $exch_data = array(
         'market' => array(
 			'kmd' => 'BTC-KMD',
 			'zec' => 'BTC-ZEC',
-		     ),
-	    'mktcase' => 'upper',
+		),
     ),
     'huobi' => array(
         'url' => 'https://api.huobi.pro/market/tickers',
@@ -152,8 +147,7 @@ $exch_data = array(
         'market' => array(
 			'kmd' => 'kmdbtc',
 			'zec' => 'zecbtc',
-		     ),
-	    'mktcase' => 'lower',
+		),
     ),
 
 );
@@ -170,14 +164,7 @@ function generatePriceData( $ticker, $currency, $fiatexchange, $exch_data ) {
 	// Build array of exchange data
 	$exch_results = array();
 	foreach ( $exch_data as $exch_key => $exch_item ) {
-	    if ( $exch_item['mktcase'] == 'lower' ) {
-		    $ticker = strtolower( $ticker );
-	    }
-	    if ( $exch_item['mktcase'] == 'upper' ) {
-		    $ticker = strtoupper( $ticker );
-        }
-        $is_supported = array_key_exists( strtolower( $ticker ), $exch_item['market'] );
-	    if ( $is_supported ) {
+	    if ( array_key_exists( strtolower( $ticker ), $exch_item['market'] ) ) {
             $exch_results[$exch_key] = btcData( $ticker, $exch_item, $exch_key );
 	    }
 	}
