@@ -2,7 +2,7 @@
 
  - Contributors: J Oliver Westbrook
  - Copyright: Copyright (c) 2019, John Oliver Westbrook 
- - Version: 0.1.4
+ - Version: 0.1.5
 
 ## The MIT License (MIT)
  
@@ -47,6 +47,16 @@ The purpose of this api script is to provide an average last price for Verus Coi
 For simple VRSC-Fiat price data, simply request the fiat currency of your choice (must be supported by BitPay) with`?currency=` - for example: `https://veruspay.io/api/?currency=GBP` to return simply the fiat price based on latest average exchange data and bitpay BTC pricing.  The currency of `BTC` is also supported.
 
 For access to the latest raw price data, for example to access via a curl request, call `rawpricedata.php` which returns the json formatted avg price data, includes date stamp of when the price was retrieved, along with individual exchange price and volume data.
+
+## Using portable price ticker
+
+To use the drop-in "portable" ticker, simply place the following code snippet in the div or section of your site where you'd like to see the ticker appear.  The size is about 370px min width by 90px min height, but these can be adjusted using CSS.
+
+Portable Ticker Snippet: 
+
+`<div id="_verus_api_ticker" coin="vrsc"><script src="https://veruspay.io/price/js/plugin.js"></script></div>`
+
+Change the "coin" variable in the code snippet for the coin you want, avail: vrsc, kmd, arrr, and zec.
 
 ### Options (values are case insensitive): 
 
