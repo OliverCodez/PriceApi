@@ -6,7 +6,7 @@
  * @package  VerusPriceApi
  * @author   J Oliver Westbrook <johnwestbrook@pm.me>
  * @copyright Copyright (c) 2019, John Oliver Westbrook
- * @version 0.1.4
+ * @version 0.1.5
  * @link     https://github.com/joliverwestbrook/VerusPriceApi
  * 
  * This application allows the getting of average Verus market price from included exchanges and outputting to a file for remote access. Basic version.
