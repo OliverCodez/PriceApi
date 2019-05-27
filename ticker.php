@@ -24,13 +24,13 @@ $coins = array(
 
 </head>
 <body>
-<header><span>VerusPay API Ticker</span><span>Developed with love for VRSC by <a href="https://github.com/joliverwestbrook" target="_BLANK">Oliver Westbrook</a></span></header>
+<header><span>Verus Price API</span><span>Developed for <a href="https://github.com/joliverwestbrook/VerusPriceApi" target="_BLANK">VerusPriceApi</a> by Oliver Westbrook</span></header>
 <main>
     <?php
         foreach ( $coins as $item ) {
             echo '<div id="'.$item.'" class="coin_container">
                     <div class="sub_container">
-                        <span class="coinimage"></span>'.strtoupper($item).' Price: <span id="'.$item.'_price" class="_veruspriceapi_price" data-currency="USD" data-coin="'.$item.'">0.00</span>
+                        <span class="coinimage"></span>'.strtoupper($item).': <span id="'.$item.'_price" class="_veruspriceapi_price" data-currency="USD" data-coin="'.$item.'">0.00</span>
                     </div>
                     <div class="sub_container">
                         <select id="'.$item.'_select" class="currency_select" data-coin="'.$item.'">
