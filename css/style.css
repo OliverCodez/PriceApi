@@ -1,0 +1,196 @@
+header {
+    display: block;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 8px;
+    width: 100%;
+    height: 70px;
+    padding: 27px 0 10px;
+    font-family: arial;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    background: #659dda;
+    color: #ffffff;
+    margin: -8px -8px 30px -8px;
+    box-shadow: #696969 0 0px 10px;
+}
+header span {
+    float: left;
+    width: 100%;
+}
+header span:nth-child(2){
+    margin:0;
+    font-size:10px;
+    font-weight:normal;
+    text-align:center;
+}
+main {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    padding: 40px;
+    margin: auto;
+    margin-top: 130px;
+    scroll-behavior: smooth;
+}
+footer {
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    width: 100%;
+    margin: 0 -8px;
+    display: block;
+    position: fixed;
+    bottom: 0;
+    background: #659dda;
+    box-shadow: #696969 0 0px 10px;
+}
+footer a, 
+header a,
+footer a:hover, 
+header a:hover,
+footer a:active, 
+header a:active,
+footer a:focus, 
+header a:focus {
+    color:#ffffff;
+}
+.coin_container {
+    display: block;
+    position: relative;
+    float: left;
+    background-color: #dddddd;
+    border-radius: 14px;
+    max-width: 380px;
+    padding: 10px 20px;
+    width: 100%;
+}
+.coin_container:nth-child(2){
+    float: right;
+}
+.coin_container:last-child {
+    float: none;
+    margin: auto;
+}
+.sub_container {
+    display: inline-block;
+    padding: 0 5px;
+    font-family: arial;
+    font-weight: bold;
+    font-size: 20px;
+    height: 60px;
+    line-height: 60px;
+}
+.coinimage {
+    display: block;
+    float: left;
+    height: 60px;
+    width: 30px;
+    margin: 0 10px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+#vrsc .coinimage {
+    background-image: url(../img/wc-verus-icon-128x128.png);
+}
+#kmd .coinimage {
+    background-image: url(../img/wc-komodo-icon-128x128.png);
+}
+#arrr .coinimage {
+    background-image: url(../img/wc-pirate-icon-128x128.png);
+}
+select.currency_select {
+    max-width: 80px;
+    font-size: 20px;
+    border: none;
+}
+@media (max-width:1279px){
+    main {
+        padding: 40px 8px;
+        margin: 130px auto;
+        padding-bottom: 70px;
+        max-width: 800px;
+    }
+    .coin_container {
+        max-width: 240px;
+        padding: 10px 2px;
+        height: 80px;
+    }
+    .sub_container {
+        height: 40px;
+    }
+    .coinimage {
+        margin-left: 0;
+    }
+    .sub_container:nth-child(2){
+        float: right;
+        width: 70px;
+        line-height: 40px;
+    }
+
+}
+@media (max-width:816px) {
+    main {
+        margin-left:-8px;
+    }
+}
+@media (max-width:767px) {
+    main {
+        padding-top:0;
+        padding-bottom: 70px;
+    }
+    .coin_container {
+        float:none;
+        width: 100%;
+        margin:20px auto;
+        padding: 10px 20px;
+        max-width: 330px;
+    }
+    .coin_container:first-child{
+        margin:0 auto;
+    }
+    .coin_container:nth-child(2){
+        float:none;
+    }
+    .sub_container:nth-child(2) {
+        line-height: 80px;
+    }
+    .coinimage {
+        height:80px;
+    }
+}
+@media (max-width:414px){
+    header span:nth-child(2){
+        margin: 0 -20px;
+        text-align:right;
+    }
+    main {
+        margin-left:0;
+        padding:0;
+    }
+    .coin_container {
+        max-width: 270px;
+        padding: 10px 5px;
+        height: 80px;
+    }
+    .sub_container {
+        position: relative;
+        display: block;
+        float: left;
+        height: 40px;
+        width: 100%;
+    }
+    .sub_container:nth-child(2){
+        float:right;
+        width: 70px;
+        line-height: 40px;
+        margin-right: 24px;
+    }
+    .coinimage {
+        height:60px;
+    }
+}
