@@ -1,4 +1,4 @@
-# VerusPriceApi - Latest Price Data for VRSC and ARRR
+# PriceApi - Latest Price Data for VRSC, ARRR, ZEC
 
  - Contributors: J Oliver Westbrook
  - Copyright: Copyright (c) 2019, John Oliver Westbrook 
@@ -27,11 +27,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ## Description
-Simple script for getting Verus, volume-weighted, average last price across all active exchanges
+Simple script for getting volume-weighted average last price across all active exchanges (included in this script, more to come)
 
-This can be hosted on your own site, or accessed for free via https://veruspay.io/api/
+This can be hosted on your own site.
 
-The purpose of this api script is to provide an average last price for Verus Coin (VRSC) from all exchanges with 24 hour base (btc) weighting and on a slight delay so data is able to be accessed immediately despite delays and slow connections from various exchanges.  My Api at VerusPay.io above is on a 1 min update interval and the default fiat I've set is USD.
+The purpose of this api script is to provide an average last price for Verus Coin (VRSC) from all exchanges with 24 hour base (btc) weighting and on a slight delay so data is able to be accessed immediately despite delays and slow connections from various exchanges.
 
 ## Installation
 
